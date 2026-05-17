@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dishcovery AI — Recipe Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,600&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="cursor-glow" id="cursor-glow"></div>
+
+<!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('dashboard')">
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9z" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 14.5s1 1.5 3.5 1.5 3.5-1.5 3.5-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
+      </div>
+      <span class="logo-text">Dish<em>covery</em></span>
+    </div>
+
+    <div class="nav-links">
+      <button class="nav-link active" id="nav-dashboard" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-link" id="nav-discovery" onclick="showPage('discovery')">Discovery</button>
+      <button class="nav-link" id="nav-myrecipes" onclick="showPage('myrecipes')">My Recipes</button>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-icon-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="nav-cta" onclick="showPage('discovery')">Start Cooking</button>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="mob-link" onclick="showPage('dashboard');closeMobileMenu()">Dashboard</button>
+    <button class="mob-link" onclick="showPage('discovery');closeMobileMenu()">Discovery</button>
+    <button class="mob-link" onclick="showPage('myrecipes');closeMobileMenu()">My Recipes</button>
+  </div>
+</nav>
+
+<div id="api-banner" class="api-banner hidden">
+  <span id="api-banner-text"></span>
+  <button onclick="document.getElementById('api-banner').classList.add('hidden')">✕</button>
+</div>
+
+<!-- ═══ DASHBOARD ════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="container">
+
+    <header class="dash-hero">
+      <div class="dash-hero-text">
+        <p class="eyebrow">Good to see you, Chef</p>
+        <h1>Your <em>culinary</em><br>intelligence hub</h1>
+        <p class="hero-sub">AI-powered recipe discovery from ingredients to plate — upload a photo, type, or speak.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showPage('discovery')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Start Discovery
+          </button>
+          <button class="btn-ghost" onclick="showPage('myrecipes')">My Recipes →</button>
+        </div>
+      </div>
+      <div class="dash-hero-visual">
+        <div class="hero-orb ho-1"></div>
+        <div class="hero-orb ho-2"></div>
+        <div class="float-cards">
+          <div class="float-card" style="--fd:0ms">
+            <span class="fc-emoji">🍅</span>
+            <span class="fc-text">Tomato detected</span>
+            <span class="fc-conf">94%</span>
+          </div>
+          <div class="float-card" style="--fd:120ms">
+            <span class="fc-emoji">🧄</span>
+            <span class="fc-text">Garlic detected</span>
+            <span class="fc-conf">89%</span>
+          </div>
+          <div class="float-card" style="--fd:240ms">
+            <span class="fc-emoji">🍝</span>
+            <span class="fc-text">12 recipes matched</span>
+            <span class="fc-conf" style="color:var(--green)">✓</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="stats-grid">
+      <div class="stat-card" style="--sd:0ms">
+        <div class="stat-icon si-orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="stat-val" id="stat-discovered">24</div>
+        <div class="stat-lbl">Recipes Discovered</div>
+        <div class="stat-trend up">↗ +12%</div>
+      </div>
+      <div class="stat-card" style="--sd:70ms">
+        <div class="stat-icon si-green">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="stat-val" id="stat-saved">0</div>
+        <div class="stat-lbl">Saved Recipes</div>
+        <div class="stat-trend up">↗ +8%</div>
+      </div>
+      <div class="stat-card" style="--sd:140ms">
+        <div class="stat-icon si-blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <div class="stat-val" id="stat-analyzed">0</div>
+        <div class="stat-lbl">Images Analyzed</div>
+        <div class="stat-trend up">↗ +15%</div>
+      </div>
+      <div class="stat-card" style="--sd:210ms">
+        <div class="stat-icon si-purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="stat-val" id="stat-dataset">—</div>
+        <div class="stat-lbl">Dataset Recipes</div>
+        <div class="stat-trend live">● live</div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="mid-grid">
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Weekly Activity</span>
+          <span class="pill">Last 7 days</span>
+        </div>
+        <div class="bar-chart">
+          <div class="bc-col"><div class="bc-bar" style="--pct:35%"></div><span>M</span></div>
+          <div class="bc-col"><div class="bc-bar" style="--pct:55%"></div><span>T</span></div>
+          <div class="bc-col"><div class="bc-bar" style="--pct:28%"></div><span>W</span></div>
+          <div class="bc-col"><div class="bc-bar bc-peak" style="--pct:72%"></div><span>T</span></div>
+          <div class="bc-col"><div class="bc-bar" style="--pct:48%"></div><span>F</span></div>
+          <div class="bc-col"><div class="bc-bar bc-top" style="--pct:90%"></div><span>S</span></div>
+          <div class="bc-col"><div class="bc-bar" style="--pct:65%"></div><span>S</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Top Detected</span>
+          <span class="pill">This month</span>
+        </div>
+        <div class="ing-list">
+          <div class="ing-row"><div class="ing-meta"><span>🍅 Tomato</span><span class="ing-n">18</span></div><div class="ing-track"><div class="ing-fill" style="width:100%"></div></div></div>
+          <div class="ing-row"><div class="ing-meta"><span>🧅 Onion</span><span class="ing-n">15</span></div><div class="ing-track"><div class="ing-fill" style="width:83%"></div></div></div>
+          <div class="ing-row"><div class="ing-meta"><span>🧄 Garlic</span><span class="ing-n">12</span></div><div class="ing-track"><div class="ing-fill" style="width:67%"></div></div></div>
+          <div class="ing-row"><div class="ing-meta"><span>🥔 Potato</span><span class="ing-n">10</span></div><div class="ing-track"><div class="ing-fill" style="width:56%"></div></div></div>
+          <div class="ing-row"><div class="ing-meta"><span>🫑 Pepper</span><span class="ing-n">8</span></div><div class="ing-track"><div class="ing-fill" style="width:44%"></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom -->
+    <section class="bot-grid">
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Recent Discoveries</span>
+          <span class="pill pill-live">● Live</span>
+        </div>
+        <div id="recent-list"><div class="empty-hint">No discoveries yet — head to Discovery to get started.</div></div>
+        <button class="view-all" onclick="showPage('myrecipes')">View all saved →</button>
+      </div>
+      <div class="cta-card">
+        <div class="cta-glow"></div>
+        <div class="cta-body">
+          <span class="cta-eyebrow">✦ AI-Powered</span>
+          <h2>Ready to discover<br>your next meal?</h2>
+          <p>Three ways to find recipes — photo, text, or voice.</p>
+          <div class="cta-btns">
+            <button class="btn-primary" onclick="showPage('discovery')">📷 Upload Photo</button>
+            <button class="btn-glass" onclick="showPage('discovery');setTimeout(()=>switchTab('text'),120)">✏️ Type It</button>
+            <button class="btn-glass" onclick="showPage('discovery');setTimeout(()=>switchTab('voice'),120)">🎙 Speak</button>
+          </div>
+          <div class="cta-tags">
+            <span>🤖 YOLOv8</span>
+            <span id="cta-recipe-count">🍽 Loading…</span>
+            <span>🎙 Voice</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-section card">
+      <div class="card-hd">
+        <span class="card-title">How It Works</span>
+        <button class="btn-ghost small" onclick="showPage('discovery')">Try it →</button>
+      </div>
+      <div class="how-grid">
+        <div class="how-step">
+          <div class="how-num">01</div>
+          <div class="how-icon hi-orange">📷</div>
+          <h3>Upload a Photo</h3>
+          <p>Snap your fridge. YOLOv8 detects every ingredient with bounding boxes and confidence scores.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">02</div>
+          <div class="how-icon hi-green">✏️</div>
+          <h3>Type Ingredients</h3>
+          <p>Type what you have, comma-separated. Instant matching without any image needed.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">03</div>
+          <div class="how-icon hi-violet">🎙</div>
+          <h3>Speak Naturally</h3>
+          <p>Say "I have tomatoes, garlic and chicken" — we parse and match using Web Speech API.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">04</div>
+          <div class="how-icon hi-blue">🍽</div>
+          <h3>Cook & Save</h3>
+          <p>Get ranked matches from your CSV dataset. Save favourites to your personal cookbook.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ═══ DISCOVERY ═════════════════════════════════════════════ -->
+<div class="page" id="page-discovery">
+  <div class="container">
+
+    <header class="disc-hero">
+      <p class="eyebrow">AI Recipe Discovery</p>
+      <h1>What's in your <em>kitchen?</em></h1>
+      <p class="hero-sub">Show us, type it, or say it — we'll find exactly what you can make.</p>
+    </header>
+
+    <div class="api-bar">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span class="api-label">Backend</span>
+      <input id="api-url-input" type="text" value="http://127.0.0.1:8000" placeholder="http://127.0.0.1:8000" />
+      <button onclick="checkApiHealth()" class="api-test-btn">Test</button>
+      <span id="api-status-dot" class="dot dot-grey"></span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-wrap">
+      <div class="tabs" id="tabs-container">
+        <button class="tab active" id="tab-photo" onclick="switchTab('photo')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Photo
+        </button>
+        <button class="tab" id="tab-text" onclick="switchTab('text')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+          Type Ingredients
+        </button>
+        <button class="tab" id="tab-voice" onclick="switchTab('voice')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          Voice Input
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PHOTO PANEL ── -->
+    <div class="panel active" id="panel-photo">
+      <div class="upload-zone" id="upload-zone"
+        onclick="document.getElementById('file-input').click()"
+        ondragover="handleDragOver(event)"
+        ondragleave="handleDragLeave()"
+        ondrop="handleDrop(event)">
+        <div class="uz-visual">
+          <div class="uz-ring r1"></div>
+          <div class="uz-ring r2"></div>
+          <div class="uz-core">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+        </div>
+        <h3>Drag & drop your photo</h3>
+        <p>or click to browse your files</p>
+        <button class="btn-primary" onclick="event.stopPropagation();document.getElementById('file-input').click()">Choose Image</button>
+        <span class="uz-hint">JPG · PNG · WebP · Analyzed by YOLOv8</span>
+      </div>
+      <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)" style="display:none" />
+    </div>
+
+    <!-- ── TEXT PANEL ── -->
+    <div class="panel" id="panel-text">
+      <div class="input-card">
+        <div class="ic-head">
+          <div class="ic-icon-wrap">✏️</div>
+          <div>
+            <div class="ic-title">Type Your Ingredients</div>
+            <div class="ic-sub">Separate with commas — e.g. "tomato, garlic, pasta, olive oil"</div>
+          </div>
+        </div>
+        <textarea id="ingredient-textarea" class="ic-textarea"
+          placeholder="e.g. tomato, garlic, chicken, lemon, pasta, olive oil, cheese…"
+          oninput="updateTextChips()"></textarea>
+        <div class="chip-row" id="chip-preview"></div>
+        <div class="ic-foot">
+          <div class="quick-adds">
+            <span class="qa-label">Quick add</span>
+            <button class="qa-chip" onclick="addQuickIngredient('tomato')">🍅 tomato</button>
+            <button class="qa-chip" onclick="addQuickIngredient('garlic')">🧄 garlic</button>
+            <button class="qa-chip" onclick="addQuickIngredient('onion')">🧅 onion</button>
+            <button class="qa-chip" onclick="addQuickIngredient('chicken')">🍗 chicken</button>
+            <button class="qa-chip" onclick="addQuickIngredient('pasta')">🍝 pasta</button>
+            <button class="qa-chip" onclick="addQuickIngredient('egg')">🥚 egg</button>
+          </div>
+          <div class="ic-actions">
+            <button class="btn-ghost small" onclick="clearTextInput()">Clear</button>
+            <button class="btn-primary" id="text-submit-btn" onclick="processTextIngredients()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Find Recipes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOICE PANEL ── -->
+    <div class="panel" id="panel-voice">
+      <div class="voice-card">
+        <div class="orb-wrap" id="orb-wrap">
+          <div class="orb-pulse p1" id="op1"></div>
+          <div class="orb-pulse p2" id="op2"></div>
+          <div class="orb-pulse p3" id="op3"></div>
+          <button class="orb" id="voice-orb" onclick="toggleVoiceRecording()">
+            <svg class="orb-mic" id="orb-mic" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <div class="orb-bars" id="orb-bars" style="display:none">
+              <div class="ob"></div><div class="ob"></div><div class="ob"></div><div class="ob"></div><div class="ob"></div>
+            </div>
+          </button>
+        </div>
+
+        <div class="vs-status">
+          <div class="vs-title" id="vs-title">Tap to start listening</div>
+          <div class="vs-sub" id="vs-sub">Say your ingredients naturally — "I have tomatoes, garlic, and chicken"</div>
+        </div>
+
+        <div class="transcript-box" id="transcript-box" style="display:none">
+          <div class="tb-label">Heard</div>
+          <div class="tb-text" id="transcript-text"></div>
+        </div>
+
+        <div class="parsed-row" id="parsed-chips"></div>
+
+        <div class="voice-acts" id="voice-actions" style="display:none">
+          <button class="btn-ghost" onclick="resetVoice()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            Try Again
+          </button>
+          <button class="btn-primary" onclick="processVoiceIngredients()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Find Recipes
+          </button>
+        </div>
+
+        <div class="voice-tips">
+          <div class="vt">💡 Try: <em>"I have eggs, cheese, and spinach"</em></div>
+          <div class="vt">💡 Or just: <em>"tomato, pasta, garlic, basil"</em></div>
+        </div>
+
+        <div id="voice-no-support" style="display:none" class="no-support-msg">
+          ⚠️ Voice input isn't supported in this browser. Please use Chrome or Edge.
+        </div>
+      </div>
+    </div>
+
+    <div id="results-section" class="results-section"></div>
+  </div>
+</div>
+
+<!-- ═══ MY RECIPES ════════════════════════════════════════════ -->
+<div class="page" id="page-myrecipes">
+  <div class="container">
+    <header class="disc-hero">
+      <p class="eyebrow">Your Collection</p>
+      <h1>Saved <em>Recipes</em></h1>
+      <p class="hero-sub">Your personal cookbook, curated by AI discovery.</p>
+    </header>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="recipe-search" placeholder="Search by name, cuisine, tag…" oninput="filterRecipes(this.value)" />
+      </div>
+      <button class="btn-ghost">Filter</button>
+    </div>
+    <div id="recipes-container"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ══════════════════════════════════════════════════ -->
+<div class="modal-bg" id="recipe-modal" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modal-card">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand-col">
+        <div class="footer-logo">🍳 Dish<em>covery AI</em></div>
+        <p>AI recipe discovery — photo, text, or voice. Powered by YOLOv8 + FastAPI.</p>
+      </div>
+      <div class="footer-col">
+        <div class="fc-title">Product</div>
+        <button class="fc-link" onclick="showPage('discovery')">Discovery</button>
+        <button class="fc-link" onclick="showPage('myrecipes')">My Recipes</button>
+        <button class="fc-link" onclick="checkApiHealth()">API Status</button>
+      </div>
+      <div class="footer-col">
+        <div class="fc-title">Stack</div>
+        <span class="fc-link">FastAPI</span>
+        <span class="fc-link">YOLOv8</span>
+        <span class="fc-link">Web Speech API</span>
+        <span class="fc-link">Vanilla JS</span>
+      </div>
+      <div class="footer-col">
+        <div class="fc-title">Dataset</div>
+        <span class="fc-link">cleaned_dataset.csv</span>
+        <span class="fc-link" id="footer-recipe-count">— recipes</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Dishcovery AI</span>
+      <span>YOLOv8 · FastAPI · Web Speech API</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
